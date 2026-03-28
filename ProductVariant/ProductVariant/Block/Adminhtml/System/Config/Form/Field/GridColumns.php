@@ -56,7 +56,7 @@ class GridColumns extends AbstractFieldArray
      * @return void
      * @throws LocalizedException
      */
-    protected function _prepareArrayRow(DataObject $row): void
+    protected function _prepareArrayRow(\Magento\Framework\DataObject $row)
     {
         $options = [];
 

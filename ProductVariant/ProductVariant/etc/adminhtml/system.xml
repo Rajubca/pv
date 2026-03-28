@@ -20,9 +20,7 @@
                     <frontend_model>Shatchi\ProductVariant\Block\Adminhtml\System\Config\Form\Field\GridColumns</frontend_model>
                     <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
                     <comment>Configure which columns show up for which Attribute Set. Use 0/All to set global defaults.</comment>
-                    <depends>
-                        <field id="enable_custom_grid">1</field>
-                    </depends>
+
                 </field>
                 <field id="enable_carton_pricing" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enable Carton Pricing in Cart</label>

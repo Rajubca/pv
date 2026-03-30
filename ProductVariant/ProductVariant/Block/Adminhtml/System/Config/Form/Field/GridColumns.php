@@ -10,7 +10,7 @@ class GridColumns extends AbstractFieldArray
     /**
      * @var AttributeSetColumn
      */
-    private $attributeSetRenderer;
+
 
     /**
      * @var AttributeColumn
@@ -24,10 +24,7 @@ class GridColumns extends AbstractFieldArray
      */
     protected function _prepareToRender()
     {
-        $this->addColumn('attribute_set', [
-            'label' => __('Attribute Set'),
-            'renderer' => $this->getAttributeSetRenderer(),
-        ]);
+
 
         $this->addColumn('column_code', [
             'label' => __('Column'),
@@ -60,10 +57,7 @@ class GridColumns extends AbstractFieldArray
     {
         $options = [];
 
-        $attributeSet = $row->getAttributeSet();
-        if ($attributeSet !== null) {
-            $options['option_' . $this->getAttributeSetRenderer()->calcOptionHash($attributeSet)] = 'selected="selected"';
-        }
+
 
         $columnCode = $row->getColumnCode();
         if ($columnCode !== null) {
@@ -77,17 +71,7 @@ class GridColumns extends AbstractFieldArray
      * @return AttributeSetColumn
      * @throws LocalizedException
      */
-    private function getAttributeSetRenderer()
-    {
-        if (!$this->attributeSetRenderer) {
-            $this->attributeSetRenderer = $this->getLayout()->createBlock(
-                AttributeSetColumn::class,
-                '',
-                ['data' => ['is_render_to_js_template' => true]]
-            );
-        }
-        return $this->attributeSetRenderer;
-    }
+
 
     /**
      * @return AttributeColumn

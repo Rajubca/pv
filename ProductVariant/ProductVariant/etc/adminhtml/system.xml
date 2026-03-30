@@ -15,13 +15,7 @@
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment>If Yes, the module will apply custom JS overrides to the Mageplaza Configurable Grid View.</comment>
                 </field>
-                <field id="grid_columns" translate="label" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Dynamic Grid Columns Configuration</label>
-                    <frontend_model>Shatchi\ProductVariant\Block\Adminhtml\System\Config\Form\Field\GridColumns</frontend_model>
-                    <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
-                    <comment>Configure which columns show up for which Attribute Set. Use 0/All to set global defaults.</comment>
 
-                </field>
                 <field id="enable_carton_pricing" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enable Carton Pricing in Cart</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -31,6 +25,18 @@
                     <label>Show Base Price in Summary</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment>If Yes, a "Base Price" column will be added to the Total Summary table.</comment>
+                </field>
+            </group>
+            <group id="attribute_set_columns" translate="label" type="text" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Dynamic Grid Columns per Attribute Set</label>
+                <clone_fields>1</clone_fields>
+                <clone_model>Shatchi\ProductVariant\Model\Config\Structure\Element\Group\AttributeSetClone</clone_model>
+
+                <field id="grid_columns" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Grid Columns Configuration</label>
+                    <frontend_model>Shatchi\ProductVariant\Block\Adminhtml\System\Config\Form\Field\GridColumns</frontend_model>
+                    <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
+                    <comment>Configure which columns show up for this specific Attribute Set.</comment>
                 </field>
             </group>
             <group id="tabs_settings" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">

@@ -92,8 +92,16 @@ class GridColumns extends AbstractFieldArray
     {
         $html = parent::_toHtml();
 
-        // Grab the options array from our renderer to build the filter dropdown
-        $optionsHtml = $this->getAttributeSetRenderer()->toHtml();
+        // Render the exact HTML options natively from PHP, so JS doesn't have to guess or wait for DOM
+        $optionsHtml = $this->getAttributeSetRenderer()->_toHtml();
+        // Since _toHtml for a Select returns <select...><option...></select>, we need to strip the <select> tags
+        // to cleanly inject just the <option> blocks into our custom header dropdown
+        if (preg_match('/<select[^>]*>(.*?)<\/select>/is', $optionsHtml, $matches)) {
+            $rawOptions = $matches[1];
+        } else {
+            // Ultimate fallback (should never happen because we control AttributeSetColumn)
+            $rawOptions = '<option value="0">-- Global / All Attribute Sets --</option>';
+        }
 
         $js = <<<HTML
         <style>
@@ -112,13 +120,18 @@ class GridColumns extends AbstractFieldArray
             .shatchi-filter-container select {
                 width: 250px;
             }
+            /* Visually hide the Attribute Set dropdown column headers and cells from the Magento table */
+            #row_shatchi_variant_general_grid_columns table th:first-child,
+            #row_shatchi_variant_general_grid_columns table td:first-child {
+                display: none !important;
+            }
         </style>
 
         <div id="shatchi_grid_columns_filter" class="shatchi-filter-container">
             <label for="shatchi_filter_select">Configure Columns For:</label>
-            <!-- We reuse the generated select HTML but change its ID and disable its name so it doesn't save to config -->
             <select id="shatchi_filter_select" class="admin__control-select">
                 <option value="all">-- Show Everything (All Sets) --</option>
+                {$rawOptions}
             </select>
         </div>
 
@@ -126,42 +139,25 @@ class GridColumns extends AbstractFieldArray
         require(['jquery', 'domReady!'], function($) {
             var filterSelect = $('#shatchi_filter_select');
 
-            // Populate the filter dropdown with the attribute sets dynamically by stealing options from the first row template
-            setTimeout(function() {
-                var prototypeHtml = $('#grid_columns_row_template').html() || '';
-                var match = prototypeHtml.match(/<select[^>]*class="[^"]*shatchi-attr-set-dropdown[^"]*"[^>]*>([\s\S]*?)<\/select>/i);
+            // Set initial state to Global
+            filterSelect.val('0');
 
-                if (match && match[1]) {
-                    filterSelect.append(match[1]);
-                } else {
-                    // Fallback to searching the DOM if template string parsing fails
-                    var firstSelect = $('tr[id^="grid_columns"] .shatchi-attr-set-dropdown').first();
-                    if (firstSelect.length) {
-                        filterSelect.append(firstSelect.html());
-                    }
-                }
-
-                // Initially set filter to Global (0)
-                filterSelect.val('0');
-                applyFilter();
-            }, 500);
+            // The row template might not be fully instantiated by Magento's JS yet,
+            // so we wait briefly then apply our initial filter.
+            setTimeout(applyFilter, 100);
 
             function applyFilter() {
                 var selectedVal = filterSelect.val();
 
-                // If "all" is selected, show everything
-                if (selectedVal === 'all') {
-                    $('#row_shatchi_variant_general_grid_columns table tbody tr').show();
-                    return;
-                }
-
-                // Loop through all data rows (ignoring header)
+                // Show/Hide rows
                 $('#row_shatchi_variant_general_grid_columns table tbody tr').each(function() {
                     var \$row = $(this);
                     var \$dropdown = \$row.find('.shatchi-attr-set-dropdown');
 
                     if (\$dropdown.length) {
-                        if (\$dropdown.val() === selectedVal) {
+                        if (selectedVal === 'all') {
+                            \$row.show();
+                        } else if (\$dropdown.val() === selectedVal) {
                             \$row.show();
                         } else {
                             \$row.hide();
@@ -174,23 +170,27 @@ class GridColumns extends AbstractFieldArray
             filterSelect.on('change', applyFilter);
 
             // Listen for clicks on the "Add Column" button
-            // Magento dynamically adds the row to the DOM, so we wait 50ms then update the new row's dropdown!
-            $('#row_shatchi_variant_general_grid_columns .action-add').on('click', function() {
+            // Automatically assign the newly added row to the currently selected attribute set!
+            $('#row_shatchi_variant_general_grid_columns').on('click', '.action-add', function() {
                 var selectedVal = filterSelect.val();
 
-                if (selectedVal !== 'all') {
-                    setTimeout(function() {
-                        var \$newRow = $('#row_shatchi_variant_general_grid_columns table tbody tr:last');
-                        var \$dropdown = \$newRow.find('.shatchi-attr-set-dropdown');
-
-                        if (\$dropdown.length) {
-                            \$dropdown.val(selectedVal);
-                        }
-                    }, 50);
+                // If they are on "Show Everything", default the new row to Global (0)
+                if (selectedVal === 'all') {
+                    selectedVal = '0';
                 }
+
+                // Wait for Magento to render the row into the DOM
+                setTimeout(function() {
+                    var \$newRow = $('#row_shatchi_variant_general_grid_columns table tbody tr:last');
+                    var \$dropdown = \$newRow.find('.shatchi-attr-set-dropdown');
+
+                    if (\$dropdown.length) {
+                        \$dropdown.val(selectedVal);
+                    }
+                }, 50);
             });
 
-            // Re-apply filter when Magento does anything to the rows natively (e.g. deleting a row)
+            // Re-apply filter when Magento deletes a row
             $('body').on('click', '#row_shatchi_variant_general_grid_columns .action-delete', function() {
                 setTimeout(applyFilter, 100);
             });

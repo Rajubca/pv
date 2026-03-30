@@ -1,0 +1,11 @@
+<?php
+/** @var \Magento\Framework\View\Element\Template $block */
+/** @var \Shatchi\ProductVariant\Helper\Data $helper */
+$helper = $this->helper(\Shatchi\ProductVariant\Helper\Data::class);
+$isEnabled = $helper->isCustomGridEnabled() ? 'true' : 'false';
+$showBasePrice = $helper->isShowBasePriceSummary() ? 'true' : 'false';
+?>
+<script>
+    window.shatchiVariantGridEnabled = <?= $isEnabled ?>;
+    window.shatchiVariantShowBasePrice = <?= $showBasePrice ?>;
+</script>

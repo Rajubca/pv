@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="product.info.options.configurable" remove="true"/>
+
+        <referenceBlock name="head.components">
+            <block class="Magento\Framework\View\Element\Template" name="shatchi_variant_config" template="Shatchi_ProductVariant::config.phtml"/>
+        </referenceBlock>
+        <referenceBlock name="product.info.details">
+            <block class="Magento\Framework\View\Element\Template" name="variant.description.tab" template="Shatchi_ProductVariant::variant_description.phtml" group="detailed_info" ifconfig="shatchi_variant/tabs_settings/enable_description_tab">
+                <arguments>
+                    <argument name="title" xsi:type="string">Description</argument>
+                </arguments>
+            </block>
+
+            <block class="Magento\Framework\View\Element\Template" name="care.instructions.tab" template="Shatchi_ProductVariant::care_instructions.phtml" group="detailed_info" ifconfig="shatchi_variant/tabs_settings/enable_care_instructions_tab">
+                <arguments>
+                    <argument name="title" xsi:type="string">Care Instructions</argument>
+                </arguments>
+            </block>
+        </referenceBlock>
+    </body>
+</page>

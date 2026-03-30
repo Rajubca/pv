@@ -1,10 +1,9 @@
 <?php
 namespace Shatchi\ProductVariant\Model\Config\Structure\Element\Group;
 
-use Magento\Config\Model\Config\Structure\Element\CloneModelInterface;
 use Magento\Eav\Model\ResourceModel\Entity\Attribute\Set\CollectionFactory;
 
-class AttributeSetClone implements CloneModelInterface
+class AttributeSetClone
 {
     /**
      * @var CollectionFactory

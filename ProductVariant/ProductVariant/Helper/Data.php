@@ -45,8 +45,13 @@ class Data extends AbstractHelper
      * @param int|null $storeId
      * @return array
      */
-            public function getGridColumns($attributeSetId, $storeId = null)
+                public function getGridColumns($attributeSetIds, $storeId = null)
     {
+        // Accept either a single ID or an array of IDs
+        if (!is_array($attributeSetIds)) {
+            $attributeSetIds = [$attributeSetIds];
+        }
+
         $columnsData = $this->scopeConfig->getValue(
             self::XML_PATH_GRID_COLUMNS,
             ScopeInterface::SCOPE_STORE,
@@ -93,16 +98,22 @@ class Data extends AbstractHelper
                     'sort_order' => isset($row['sort_order']) ? (int)$row['sort_order'] : 0
                 ];
 
-                // Loose comparison to handle string '4' vs int 4
-                if ($row['attribute_set'] == $attributeSetId) {
-                    $matchedColumns[] = $colData;
+                // Check if the configured Attribute Set matches any of the product's attribute sets (Parent or Child)
+                if (in_array((int)$row['attribute_set'], $attributeSetIds)) {
+                    $matchedColumns[(int)$row['attribute_set']][] = $colData;
                 } elseif ($row['attribute_set'] == 0 || $row['attribute_set'] == '0') {
                     $defaultColumns[] = $colData;
                 }
             }
 
-            // Return matched columns, or defaults if no specific config exists for this set
-            $finalColumns = !empty($matchedColumns) ? $matchedColumns : $defaultColumns;
+            // Return matched columns if found. If multiple matched, pick the first non-default one.
+            $finalColumns = $defaultColumns;
+            foreach ($attributeSetIds as $id) {
+                if (isset($matchedColumns[$id]) && !empty($matchedColumns[$id])) {
+                    $finalColumns = $matchedColumns[$id];
+                    break;
+                }
+            }
 
             // Sort by sort_order
             usort($finalColumns, function($a, $b) {

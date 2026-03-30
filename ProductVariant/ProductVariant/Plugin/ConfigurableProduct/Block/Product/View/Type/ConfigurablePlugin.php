@@ -31,15 +31,27 @@ class ConfigurablePlugin
     {
         $config = $this->jsonDecoder->decode($result);
 
-        // Grid Configuration Logic
+                // Grid Configuration Logic
         $product = $subject->getProduct();
         $storeId = $this->storeManager->getStore()->getId();
-        $attributeSetId = $product->getAttributeSetId();
 
-        $config['attribute_set_id'] = $attributeSetId;
+        // Build an array of Attribute Set IDs involved (Parent first, then Children)
+        $attributeSetIds = [(int)$product->getAttributeSetId()];
 
-        // Fetch configured grid columns for this attribute set
-        $gridColumns = $this->variantHelper->getGridColumns($attributeSetId, $storeId);
+        // Get all simple products that belong to this configurable product
+        $products = $subject->getAllowProducts();
+
+        foreach ($products as $child) {
+            $childSetId = (int)$child->getAttributeSetId();
+            if (!in_array($childSetId, $attributeSetIds)) {
+                $attributeSetIds[] = $childSetId;
+            }
+        }
+
+        $config['attribute_set_id'] = $attributeSetIds; // Useful for JS debugging
+
+        // Fetch configured grid columns matching ANY of the product's attribute sets
+        $gridColumns = $this->variantHelper->getGridColumns($attributeSetIds, $storeId);
         $config['shatchi_grid_columns'] = $gridColumns;
 
         // Custom attribute arrays
@@ -55,9 +67,6 @@ class ConfigurablePlugin
         $cartonQtyList = [];
         $ledsNoList = [];
         $dynamicAttrs = [];
-
-        // Get all simple products that belong to this configurable product
-        $products = $subject->getAllowProducts();
 
         foreach ($products as $child) {
             $productId = $child->getId();

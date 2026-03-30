@@ -120,9 +120,9 @@ class GridColumns extends AbstractFieldArray
             .shatchi-filter-container select {
                 width: 250px;
             }
-            /* Visually hide the Attribute Set dropdown column headers and cells from the Magento table */
-            #row_shatchi_variant_general_grid_columns table th:first-child,
-            #row_shatchi_variant_general_grid_columns table td:first-child {
+                        /* Visually hide the Attribute Set dropdown column headers and cells from the Magento table */
+            #row_shatchi_variant_general_grid_columns table thead th:first-child,
+            #row_shatchi_variant_general_grid_columns table tbody td:first-child {
                 display: none !important;
             }
         </style>

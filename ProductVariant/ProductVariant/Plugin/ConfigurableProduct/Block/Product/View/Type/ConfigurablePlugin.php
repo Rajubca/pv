@@ -5,23 +5,42 @@ namespace Shatchi\ProductVariant\Plugin\ConfigurableProduct\Block\Product\View\T
 use Magento\ConfigurableProduct\Block\Product\View\Type\Configurable;
 use Magento\Framework\Json\EncoderInterface;
 use Magento\Framework\Json\DecoderInterface;
+use Shatchi\ProductVariant\Helper\Data as VariantHelper;
+use Magento\Store\Model\StoreManagerInterface;
 
 class ConfigurablePlugin
 {
     protected $jsonEncoder;
     protected $jsonDecoder;
+    protected $variantHelper;
+    protected $storeManager;
 
     public function __construct(
         EncoderInterface $jsonEncoder,
-        DecoderInterface $jsonDecoder
+        DecoderInterface $jsonDecoder,
+        VariantHelper $variantHelper,
+        StoreManagerInterface $storeManager
     ) {
         $this->jsonEncoder = $jsonEncoder;
         $this->jsonDecoder = $jsonDecoder;
+        $this->variantHelper = $variantHelper;
+        $this->storeManager = $storeManager;
     }
 
     public function afterGetJsonConfig(Configurable $subject, $result)
     {
         $config = $this->jsonDecoder->decode($result);
+
+        // Grid Configuration Logic
+        $product = $subject->getProduct();
+        $storeId = $this->storeManager->getStore()->getId();
+        $attributeSetId = $product->getAttributeSetId();
+
+        $config['attribute_set_id'] = $attributeSetId;
+
+        // Fetch configured grid columns for this attribute set
+        $gridColumns = $this->variantHelper->getGridColumns($attributeSetId, $storeId);
+        $config['shatchi_grid_columns'] = $gridColumns;
 
         // Custom attribute arrays
         $descTab = [];
@@ -35,19 +54,21 @@ class ConfigurablePlugin
         $cartonPriceList = [];
         $cartonQtyList = [];
         $ledsNoList = [];
+        $dynamicAttrs = [];
+
         // Get all simple products that belong to this configurable product
         $products = $subject->getAllowProducts();
 
-        foreach ($products as $product) {
-            $productId = $product->getId();
+        foreach ($products as $child) {
+            $productId = $child->getId();
 
             // Helper to get attribute safely (handles if not loaded in collection)
-            $getAttr = function ($code) use ($product) {
-                $val = $product->getData($code);
+            $getAttr = function ($code) use ($child) {
+                $val = $child->getData($code);
                 if ($val === null) {
-                    $resource = $product->getResource();
+                    $resource = $child->getResource();
                     if ($resource) {
-                        $rawVal = $resource->getAttributeRawValue($product->getId(), $code, $product->getStoreId());
+                        $rawVal = $resource->getAttributeRawValue($child->getId(), $code, $child->getStoreId());
                         if ($rawVal !== false && !is_array($rawVal)) {
                             return $rawVal;
                         }
@@ -57,7 +78,7 @@ class ConfigurablePlugin
             };
 
             // Standard Description fallback
-            $ledsVal = $product->getAttributeText('leds_no');
+            $ledsVal = $child->getAttributeText('leds_no');
 
             if (!$ledsVal) {
                 $ledsVal = $getAttr('leds_no');
@@ -104,6 +125,17 @@ class ConfigurablePlugin
 
             $cartonQtyVal = $getAttr('shatchi_carton_qty');
             if ($cartonQtyVal !== null) $cartonQtyList[$productId] = $cartonQtyVal;
+
+            // Populate dynamically requested attributes
+            if (!empty($gridColumns)) {
+                foreach ($gridColumns as $col) {
+                    if (strpos($col['code'], 'attr_') === 0) {
+                        $attrCode = substr($col['code'], 5);
+                        $attrValue = $getAttr($attrCode);
+                        $dynamicAttrs[$attrCode][$productId] = $attrValue !== null ? $attrValue : '-';
+                    }
+                }
+            }
         }
 
         // Inject our custom arrays into the main jsonConfig
@@ -118,6 +150,8 @@ class ConfigurablePlugin
         $config['shatchi_carton_price'] = $cartonPriceList;
         $config['shatchi_carton_qty'] = $cartonQtyList;
         $config['leds_no'] = $ledsNoList;
+        $config['dynamic_attrs'] = $dynamicAttrs;
+
         return $this->jsonEncoder->encode($config);
     }
 }

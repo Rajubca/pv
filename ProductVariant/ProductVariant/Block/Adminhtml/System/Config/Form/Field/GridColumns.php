@@ -188,9 +188,9 @@ class GridColumns extends AbstractFieldArray
                                     }
 
                                     // Find the hidden attribute set dropdown in the NEW row
-                                    var $dropdown = $(node).find('.shatchi-attr-set-dropdown');
-                                    if ($dropdown.length) {
-                                        $dropdown.val(selectedVal);
+                                    var \$dropdown = \$(node).find('.shatchi-attr-set-dropdown');
+                                    if (\$dropdown.length) {
+                                        \$dropdown.val(selectedVal);
                                     }
 
                                     // Since we added a row, we should ensure the filter is applied

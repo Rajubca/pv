@@ -170,7 +170,7 @@ class GridColumns extends AbstractFieldArray
             filterSelect.on('change', applyFilter);
 
             // Use a MutationObserver to 100% reliably catch when Magento adds a new row to the table!
-            var targetNode = document.querySelector('#row_shatchi_variant_general_grid_columns table tbody');
+                        var targetNode = document.querySelector('#row_shatchi_variant_general_grid_columns table tbody');
 
             if (targetNode) {
                 var observer = new MutationObserver(function(mutations) {
@@ -190,12 +190,11 @@ class GridColumns extends AbstractFieldArray
                                     // Find the hidden attribute set dropdown in the NEW row
                                     var \$dropdown = \$(node).find('.shatchi-attr-set-dropdown');
                                     if (\$dropdown.length) {
+                                        // Set the value immediately
                                         \$dropdown.val(selectedVal);
+                                        // Forcefully show the row since it matches the current active filter
+                                        \$(node).show();
                                     }
-
-                                    // Since we added a row, we should ensure the filter is applied
-                                    // (though a new row usually matches the currently selected filter anyway)
-                                    // setTimeout(applyFilter, 50);
                                 }
                             }
                         }

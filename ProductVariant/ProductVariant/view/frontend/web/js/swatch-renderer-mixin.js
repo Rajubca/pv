@@ -122,7 +122,17 @@ define([
                 // -------------------------------
                 // DYNAMIC COLUMN ORDER FROM CONFIG
                 // -------------------------------
-                var dynamicColumns = widget.options.jsonConfig.shatchi_grid_columns || [];
+                var dynamicColumns = [];
+                if (widget && widget.options && widget.options.jsonConfig && widget.options.jsonConfig.shatchi_grid_columns) {
+                    dynamicColumns = widget.options.jsonConfig.shatchi_grid_columns;
+                } else if (window.mpConfigurableJsonConfig && window.mpConfigurableJsonConfig.shatchi_grid_columns) {
+                    dynamicColumns = window.mpConfigurableJsonConfig.shatchi_grid_columns;
+                }
+
+                console.log('--- Shatchi Variant Debug (Row Build) ---');
+                console.log('Product ID:', productId);
+                console.log('Dynamic Columns:', dynamicColumns.length);
+                console.log('-----------------------------------------');
 
                 // Fallback to default layout if no dynamic columns configured
                 if (dynamicColumns.length === 0) {
@@ -262,16 +272,30 @@ define([
                     var jsonConfigData = null;
 
                     // Mageplaza configurable widget keeps options attached to the element
-                    var mpWidget = $('[data-role=swatch-options]').data('mageplaza_configurable-SwatchRenderer') ||
-                                   $('[data-role=swatch-options]').data('mage-SwatchRenderer');
+                    // Fallbacks to standard magento SwatchRenderer
+                    // BUT inside _EventListener we have access to "this.options.jsonConfig" !
 
-                    if (mpWidget && mpWidget.options && mpWidget.options.jsonConfig) {
-                        jsonConfigData = mpWidget.options.jsonConfig;
-                    } else if (window.mpConfigurableJsonConfig) {
-                        jsonConfigData = window.mpConfigurableJsonConfig;
+                    if (this && this.options && this.options.jsonConfig) {
+                        jsonConfigData = this.options.jsonConfig;
+                    } else {
+                        var mpWidget = $('[data-role=swatch-options]').data('mageplaza_configurable-SwatchRenderer') ||
+                                       $('[data-role=swatch-options]').data('mage-SwatchRenderer');
+
+                        if (mpWidget && mpWidget.options && mpWidget.options.jsonConfig) {
+                            jsonConfigData = mpWidget.options.jsonConfig;
+                        } else if (window.mpConfigurableJsonConfig) {
+                            jsonConfigData = window.mpConfigurableJsonConfig;
+                        }
                     }
 
                     var dynamicColumns = jsonConfigData && jsonConfigData.shatchi_grid_columns ? jsonConfigData.shatchi_grid_columns : [];
+
+                    console.log('--- Shatchi Variant Debug (Header Build) ---');
+                    console.log('Loaded Config:', jsonConfigData ? 'Yes' : 'No');
+                    console.log('Dynamic Columns:', dynamicColumns.length);
+                    console.log('Config Object:', jsonConfigData);
+                    console.log('----------------------------------------------');
+
 
                     // Fallback to default layout
                     if (dynamicColumns.length === 0) {

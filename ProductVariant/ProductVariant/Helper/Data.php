@@ -45,7 +45,7 @@ class Data extends AbstractHelper
      * @param int|null $storeId
      * @return array
      */
-        public function getGridColumns($attributeSetId, $storeId = null)
+            public function getGridColumns($attributeSetId, $storeId = null)
     {
         $columnsData = $this->scopeConfig->getValue(
             self::XML_PATH_GRID_COLUMNS,
@@ -58,12 +58,16 @@ class Data extends AbstractHelper
         }
 
         try {
-            // In Magento 2.4.5, ArraySerialized backend model saves as JSON string
-            $parsedData = json_decode($columnsData, true);
+            $parsedData = $columnsData;
 
-            // Fallback to serializer if json_decode fails (for legacy serialized data)
-            if ($parsedData === null && json_last_error() !== JSON_ERROR_NONE) {
-                $parsedData = $this->serializer->unserialize($columnsData);
+            // Depending on cache, Magento may return either a parsed array or a JSON string for ArraySerialized backend models
+            if (is_string($columnsData)) {
+                $parsedData = json_decode($columnsData, true);
+
+                // Fallback to serializer if json_decode fails
+                if ($parsedData === null && json_last_error() !== JSON_ERROR_NONE) {
+                    $parsedData = $this->serializer->unserialize($columnsData);
+                }
             }
 
             if (!is_array($parsedData)) {

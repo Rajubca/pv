@@ -166,29 +166,45 @@ class GridColumns extends AbstractFieldArray
                 });
             }
 
-            // Listen for filter changes
+                        // Listen for filter changes
             filterSelect.on('change', applyFilter);
 
-            // Listen for clicks on the "Add Column" button
-            // Automatically assign the newly added row to the currently selected attribute set!
-            $('#row_shatchi_variant_general_grid_columns').on('click', '.action-add', function() {
-                var selectedVal = filterSelect.val();
+            // Use a MutationObserver to 100% reliably catch when Magento adds a new row to the table!
+            var targetNode = document.querySelector('#row_shatchi_variant_general_grid_columns table tbody');
 
-                // If they are on "Show Everything", default the new row to Global (0)
-                if (selectedVal === 'all') {
-                    selectedVal = '0';
-                }
+            if (targetNode) {
+                var observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.addedNodes && mutation.addedNodes.length > 0) {
+                            // A new node was added (Magento added a row)
+                            for (var i = 0; i < mutation.addedNodes.length; i++) {
+                                var node = mutation.addedNodes[i];
+                                if (node.tagName === 'TR') {
+                                    var selectedVal = filterSelect.val();
 
-                // Wait for Magento to render the row into the DOM
-                setTimeout(function() {
-                    var \$newRow = $('#row_shatchi_variant_general_grid_columns table tbody tr:last');
-                    var \$dropdown = \$newRow.find('.shatchi-attr-set-dropdown');
+                                    // If "all" is selected, default to Global (0)
+                                    if (selectedVal === 'all') {
+                                        selectedVal = '0';
+                                    }
 
-                    if (\$dropdown.length) {
-                        \$dropdown.val(selectedVal);
-                    }
-                }, 50);
-            });
+                                    // Find the hidden attribute set dropdown in the NEW row
+                                    var $dropdown = $(node).find('.shatchi-attr-set-dropdown');
+                                    if ($dropdown.length) {
+                                        $dropdown.val(selectedVal);
+                                    }
+
+                                    // Since we added a row, we should ensure the filter is applied
+                                    // (though a new row usually matches the currently selected filter anyway)
+                                    // setTimeout(applyFilter, 50);
+                                }
+                            }
+                        }
+                    });
+                });
+
+                // Start observing the table body for appended rows
+                observer.observe(targetNode, { childList: true });
+            }
 
             // Re-apply filter when Magento deletes a row
             $('body').on('click', '#row_shatchi_variant_general_grid_columns .action-delete', function() {

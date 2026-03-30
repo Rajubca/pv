@@ -45,7 +45,7 @@ class Data extends AbstractHelper
      * @param int|null $storeId
      * @return array
      */
-    public function getGridColumns($attributeSetId, $storeId = null)
+        public function getGridColumns($attributeSetId, $storeId = null)
     {
         $columnsData = $this->scopeConfig->getValue(
             self::XML_PATH_GRID_COLUMNS,
@@ -58,7 +58,14 @@ class Data extends AbstractHelper
         }
 
         try {
-            $parsedData = $this->serializer->unserialize($columnsData);
+            // In Magento 2.4.5, ArraySerialized backend model saves as JSON string
+            $parsedData = json_decode($columnsData, true);
+
+            // Fallback to serializer if json_decode fails (for legacy serialized data)
+            if ($parsedData === null && json_last_error() !== JSON_ERROR_NONE) {
+                $parsedData = $this->serializer->unserialize($columnsData);
+            }
+
             if (!is_array($parsedData)) {
                 return [];
             }
@@ -66,7 +73,12 @@ class Data extends AbstractHelper
             $matchedColumns = [];
             $defaultColumns = []; // Fallback for "All Attribute Sets" (0)
 
-            foreach ($parsedData as $row) {
+            foreach ($parsedData as $key => $row) {
+                // Skip the hidden '__empty' field Magento dynamic rows might inject
+                if ($key === '__empty') {
+                    continue;
+                }
+
                 if (!isset($row['attribute_set']) || !isset($row['column_code']) || !isset($row['custom_header'])) {
                     continue;
                 }
@@ -77,9 +89,10 @@ class Data extends AbstractHelper
                     'sort_order' => isset($row['sort_order']) ? (int)$row['sort_order'] : 0
                 ];
 
+                // Loose comparison to handle string '4' vs int 4
                 if ($row['attribute_set'] == $attributeSetId) {
                     $matchedColumns[] = $colData;
-                } elseif ($row['attribute_set'] == 0) {
+                } elseif ($row['attribute_set'] == 0 || $row['attribute_set'] == '0') {
                     $defaultColumns[] = $colData;
                 }
             }
@@ -94,7 +107,7 @@ class Data extends AbstractHelper
 
             return $finalColumns;
 
-        } catch (\InvalidArgumentException $e) {
+        } catch (\Exception $e) {
             return [];
         }
     }

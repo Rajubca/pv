@@ -38,7 +38,7 @@ class Data extends AbstractHelper
         );
     }
 
-    public function getGridColumns($attributeSetIds, $storeId = null)
+        public function getGridColumns($attributeSetIds, $storeId = null)
     {
         if (!is_array($attributeSetIds)) {
             $attributeSetIds = [$attributeSetIds];
@@ -81,21 +81,41 @@ class Data extends AbstractHelper
                     'sort_order' => isset($row['sort_order']) ? (int)$row['sort_order'] : 0
                 ];
 
+                // Loosely check if it belongs to any of the product's Attribute Sets
                 if (in_array((int)$row['attribute_set'], $attributeSetIds)) {
                     $matchedColumns[(int)$row['attribute_set']][] = $colData;
                 } elseif ($row['attribute_set'] == 0 || $row['attribute_set'] == '0') {
+                    // Global (Base) columns that apply to EVERY attribute set
                     $defaultColumns[] = $colData;
                 }
             }
 
+            // MERGE the Global Base columns with the specific Attribute Set's extra columns
             $finalColumns = $defaultColumns;
+
+            // Append any specific columns found for the current product's attribute sets
             foreach ($attributeSetIds as $id) {
                 if (isset($matchedColumns[$id]) && !empty($matchedColumns[$id])) {
-                    $finalColumns = $matchedColumns[$id];
-                    break;
+                    // If a specific column code exactly matches a global base column, we overwrite the global one
+                    // so the admin can override a base column's header or sort order for a specific Attribute Set!
+                    foreach ($matchedColumns[$id] as $specificCol) {
+                        $overwritten = false;
+                        foreach ($finalColumns as $k => $baseCol) {
+                            if ($baseCol['code'] === $specificCol['code']) {
+                                $finalColumns[$k] = $specificCol;
+                                $overwritten = true;
+                                break;
+                            }
+                        }
+                        if (!$overwritten) {
+                            $finalColumns[] = $specificCol;
+                        }
+                    }
+                    break; // Once we find the specific config for this product, we stop appending other child sets
                 }
             }
 
+            // Finally, sort ALL merged columns by their designated sort order
             usort($finalColumns, function($a, $b) {
                 return $a['sort_order'] <=> $b['sort_order'];
             });

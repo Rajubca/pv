@@ -19,7 +19,7 @@
                     <label>Dynamic Grid Columns Configuration</label>
                     <frontend_model>Shatchi\ProductVariant\Block\Adminhtml\System\Config\Form\Field\GridColumns</frontend_model>
                     <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
-                    <comment>Configure which columns show up for which Attribute Set. Use 0/All to set global defaults.</comment>
+                                        <comment><![CDATA[<b>IMPORTANT:</b> Add your base columns (SKU, Qty, Price) to the <b>-- Global / All Attribute Sets --</b> filter. Then, switch the dropdown to a specific Attribute Set (like 'piece ar') to add "extra" columns. The extra columns will automatically merge into the Global columns and sort by position!]]></comment>
                 </field>
                 <field id="enable_carton_pricing" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enable Carton Pricing in Cart</label>

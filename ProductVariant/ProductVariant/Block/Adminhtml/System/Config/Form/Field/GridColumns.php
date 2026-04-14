@@ -88,22 +88,18 @@ class GridColumns extends AbstractFieldArray
     /**
      * Inject custom JS to filter rows by Attribute Set visually!
      */
-    protected function _toHtml()
+        protected function _toHtml()
     {
         $html = parent::_toHtml();
 
-        // Render the exact HTML options natively from PHP, so JS doesn't have to guess or wait for DOM
         $optionsHtml = $this->getAttributeSetRenderer()->_toHtml();
-        // Since _toHtml for a Select returns <select...><option...></select>, we need to strip the <select> tags
-        // to cleanly inject just the <option> blocks into our custom header dropdown
         if (preg_match('/<select[^>]*>(.*?)<\/select>/is', $optionsHtml, $matches)) {
             $rawOptions = $matches[1];
         } else {
-            // Ultimate fallback (should never happen because we control AttributeSetColumn)
             $rawOptions = '<option value="0">-- Global / All Attribute Sets --</option>';
         }
 
-        $js = <<<HTML
+        $js = <<<'HTML'
         <style>
             .shatchi-filter-container {
                 margin-bottom: 20px;
@@ -120,7 +116,7 @@ class GridColumns extends AbstractFieldArray
             .shatchi-filter-container select {
                 width: 250px;
             }
-                        /* Visually hide the Attribute Set dropdown column headers and cells from the Magento table */
+            /* Visually hide the Attribute Set dropdown column headers and cells from the Magento table */
             #row_shatchi_variant_general_grid_columns table thead th:first-child,
             #row_shatchi_variant_general_grid_columns table tbody td:first-child {
                 display: none !important;
@@ -131,7 +127,7 @@ class GridColumns extends AbstractFieldArray
             <label for="shatchi_filter_select">Configure Columns For:</label>
             <select id="shatchi_filter_select" class="admin__control-select">
                 <option value="all">-- Show Everything (All Sets) --</option>
-                {$rawOptions}
+                %RAW_OPTIONS%
             </select>
         </div>
 
@@ -146,29 +142,29 @@ class GridColumns extends AbstractFieldArray
             // so we wait briefly then apply our initial filter.
             setTimeout(applyFilter, 100);
 
-                                    function applyFilter() {
+            function applyFilter() {
                 var selectedVal = filterSelect.val();
 
                 // Show/Hide rows
                 $('#row_shatchi_variant_general_grid_columns table tbody tr').each(function() {
-                    var \$row = \$(this);
+                    var $row = $(this);
 
                     // Magento's AbstractFieldArray has a hidden prototype row with an ID usually containing 'template'
-                    if (\$row.attr('id') && \$row.attr('id').indexOf('template') !== -1) {
+                    if ($row.attr('id') && $row.attr('id').indexOf('template') !== -1) {
                         return true; // Skip the template row entirely so we don't accidentally show it or mutate it
                     }
 
-                    var \$dropdown = \$row.find('.shatchi-attr-set-dropdown');
+                    var $dropdown = $row.find('.shatchi-attr-set-dropdown');
 
                     if ($dropdown.length) {
                         var rowAttrSet = $dropdown.val();
 
                         if (selectedVal === 'all') {
-                            \$row.show();
+                            $row.show();
                         } else if (rowAttrSet === selectedVal) {
-                            \$row.show();
+                            $row.show();
                         } else {
-                            \$row.hide();
+                            $row.hide();
                         }
                     }
                 });
@@ -178,7 +174,7 @@ class GridColumns extends AbstractFieldArray
             filterSelect.on('change', applyFilter);
 
             // Use a MutationObserver to 100% reliably catch when Magento adds a new row to the table!
-                        var targetNode = document.querySelector('#row_shatchi_variant_general_grid_columns table tbody');
+            var targetNode = document.querySelector('#row_shatchi_variant_general_grid_columns table tbody');
 
             if (targetNode) {
                 var observer = new MutationObserver(function(mutations) {
@@ -196,12 +192,12 @@ class GridColumns extends AbstractFieldArray
                                     }
 
                                     // Find the hidden attribute set dropdown in the NEW row
-                                    var \$dropdown = \$(node).find('.shatchi-attr-set-dropdown');
-                                    if (\$dropdown.length) {
+                                    var $dropdown = $(node).find('.shatchi-attr-set-dropdown');
+                                    if ($dropdown.length) {
                                         // Set the value immediately
-                                        \$dropdown.val(selectedVal);
+                                        $dropdown.val(selectedVal);
                                         // Forcefully show the row since it matches the current active filter
-                                        \$(node).show();
+                                        $(node).show();
                                     }
                                 }
                             }
@@ -220,6 +216,8 @@ class GridColumns extends AbstractFieldArray
         });
         </script>
 HTML;
+
+        $js = str_replace('%RAW_OPTIONS%', $rawOptions, $js);
 
         // Prepend our filter UI right before the actual Magento table element
         return $js . $html;

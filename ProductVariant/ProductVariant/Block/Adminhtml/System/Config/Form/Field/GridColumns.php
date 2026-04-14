@@ -151,24 +151,24 @@ class GridColumns extends AbstractFieldArray
 
                 // Show/Hide rows
                 $('#row_shatchi_variant_general_grid_columns table tbody tr').each(function() {
-                    var $row = $(this);
+                    var \$row = \$(this);
 
                     // Magento's AbstractFieldArray has a hidden prototype row with an ID usually containing 'template'
-                    if ($row.attr('id') && $row.attr('id').indexOf('template') !== -1) {
+                    if (\$row.attr('id') && \$row.attr('id').indexOf('template') !== -1) {
                         return true; // Skip the template row entirely so we don't accidentally show it or mutate it
                     }
 
-                    var $dropdown = $row.find('.shatchi-attr-set-dropdown');
+                    var \$dropdown = \$row.find('.shatchi-attr-set-dropdown');
 
                     if ($dropdown.length) {
                         var rowAttrSet = $dropdown.val();
 
                         if (selectedVal === 'all') {
-                            $row.show();
+                            \$row.show();
                         } else if (rowAttrSet === selectedVal) {
-                            $row.show();
+                            \$row.show();
                         } else {
-                            $row.hide();
+                            \$row.hide();
                         }
                     }
                 });

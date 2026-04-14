@@ -146,27 +146,35 @@ class GridColumns extends AbstractFieldArray
             // so we wait briefly then apply our initial filter.
             setTimeout(applyFilter, 100);
 
-            function applyFilter() {
+                                    function applyFilter() {
                 var selectedVal = filterSelect.val();
 
                 // Show/Hide rows
                 $('#row_shatchi_variant_general_grid_columns table tbody tr').each(function() {
-                    var \$row = $(this);
-                    var \$dropdown = \$row.find('.shatchi-attr-set-dropdown');
+                    var $row = $(this);
 
-                    if (\$dropdown.length) {
+                    // Magento's AbstractFieldArray has a hidden prototype row with an ID usually containing 'template'
+                    if ($row.attr('id') && $row.attr('id').indexOf('template') !== -1) {
+                        return true; // Skip the template row entirely so we don't accidentally show it or mutate it
+                    }
+
+                    var $dropdown = $row.find('.shatchi-attr-set-dropdown');
+
+                    if ($dropdown.length) {
+                        var rowAttrSet = $dropdown.val();
+
                         if (selectedVal === 'all') {
-                            \$row.show();
-                        } else if (\$dropdown.val() === selectedVal) {
-                            \$row.show();
+                            $row.show();
+                        } else if (rowAttrSet === selectedVal) {
+                            $row.show();
                         } else {
-                            \$row.hide();
+                            $row.hide();
                         }
                     }
                 });
             }
 
-                        // Listen for filter changes
+            // Listen for filter changes
             filterSelect.on('change', applyFilter);
 
             // Use a MutationObserver to 100% reliably catch when Magento adds a new row to the table!

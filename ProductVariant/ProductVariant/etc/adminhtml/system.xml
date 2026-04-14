@@ -19,7 +19,7 @@
                     <label>Dynamic Grid Columns Configuration</label>
                     <frontend_model>Shatchi\ProductVariant\Block\Adminhtml\System\Config\Form\Field\GridColumns</frontend_model>
                     <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
-                    <comment>Configure which columns show up for which Attribute Set. Use 0/All to set global defaults.</comment>
+                    <comment>Configure which dynamic attribute columns show up for which Attribute Set. The fixed base columns (Item Code, Qty, etc.) will be automatically merged and sorted based on the Base Columns Configuration below.</comment>
                 </field>
                 <field id="enable_carton_pricing" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enable Carton Pricing in Cart</label>
@@ -32,6 +32,61 @@
                     <comment>If Yes, a "Base Price" column will be added to the Total Summary table.</comment>
                 </field>
             </group>
+
+            <group id="base_columns" translate="label" type="text" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Base Columns Configuration</label>
+                <comment>Configure the Headers and Sort Order for the 7 fixed base columns. These will always be present for all attribute sets. Ensure no Sort Order conflicts with your Dynamic Grid Columns.</comment>
+
+                <field id="item_code_header" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Item Code Header</label>
+                </field>
+                <field id="item_code_sort" translate="label" type="text" sortOrder="11" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Item Code Sort Order</label>
+                </field>
+
+                <field id="min_qty_header" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Min Qty Header</label>
+                </field>
+                <field id="min_qty_sort" translate="label" type="text" sortOrder="21" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Min Qty Sort Order</label>
+                </field>
+
+                <field id="moq_price_header" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>MOQ Price/Pc Header</label>
+                </field>
+                <field id="moq_price_sort" translate="label" type="text" sortOrder="31" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>MOQ Price/Pc Sort Order</label>
+                </field>
+
+                <field id="carton_qty_header" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Ctn Qty Header</label>
+                </field>
+                <field id="carton_qty_sort" translate="label" type="text" sortOrder="41" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Ctn Qty Sort Order</label>
+                </field>
+
+                <field id="carton_price_header" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Ctn Price/Pc Header</label>
+                </field>
+                <field id="carton_price_sort" translate="label" type="text" sortOrder="51" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Ctn Price/Pc Sort Order</label>
+                </field>
+
+                <field id="qty_header" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Qty Header</label>
+                </field>
+                <field id="qty_sort" translate="label" type="text" sortOrder="61" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Qty Sort Order</label>
+                </field>
+
+                <field id="subtotal_header" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Subtotal Header</label>
+                </field>
+                <field id="subtotal_sort" translate="label" type="text" sortOrder="71" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Subtotal Sort Order</label>
+                </field>
+            </group>
+
             <group id="tabs_settings" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Product Tabs Configuration</label>
                 <field id="enable_description_tab" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">

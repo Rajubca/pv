@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <shatchi_variant>
+            <base_columns>
+                <item_code_header>Item Code</item_code_header>
+                <item_code_sort>10</item_code_sort>
+                <min_qty_header>Min Qty</min_qty_header>
+                <min_qty_sort>20</min_qty_sort>
+                <moq_price_header>Moq Price/PC</moq_price_header>
+                <moq_price_sort>30</moq_price_sort>
+                <carton_qty_header>Ctn Qty</carton_qty_header>
+                <carton_qty_sort>40</carton_qty_sort>
+                <carton_price_header>Ctn Price/PC</carton_price_header>
+                <carton_price_sort>50</carton_price_sort>
+                <qty_header>Qty</qty_header>
+                <qty_sort>60</qty_sort>
+                <subtotal_header>Subtotal</subtotal_header>
+                <subtotal_sort>70</subtotal_sort>
+            </base_columns>
+        </shatchi_variant>
+    </default>
+</config>

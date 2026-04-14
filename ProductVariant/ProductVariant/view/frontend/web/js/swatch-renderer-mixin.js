@@ -138,8 +138,6 @@ define([
                 if (dynamicColumns.length === 0) {
                     dynamicColumns = [
                         {code: 'item_code', header: 'Item Code'},
-                        {code: 'attr_leds_no', header: 'LEDs'},
-                        {code: 'attr_r_size', header: 'Size'},
                         {code: 'min_qty', header: 'Min Qty'},
                         {code: 'moq_price', header: 'Moq Price/PC'},
                         {code: 'carton_qty', header: 'Ctn Qty'},
@@ -301,8 +299,6 @@ define([
                     if (dynamicColumns.length === 0) {
                         dynamicColumns = [
                             {code: 'item_code', header: 'Item Code'},
-                            {code: 'attr_leds_no', header: 'LEDs'},
-                            {code: 'attr_r_size', header: 'Size'},
                             {code: 'min_qty', header: 'Min Qty'},
                             {code: 'moq_price', header: 'Moq Price/PC'},
                             {code: 'carton_qty', header: 'Ctn Qty'},

@@ -62,16 +62,8 @@ class AttributeColumn extends Select
      */
     private function getSourceOptions()
     {
-        $options = [
-            // Standard columns that don't directly map to product attributes or need special handling
-            ['value' => 'item_code', 'label' => __('[Base] Item Code (SKU)')],
-            ['value' => 'moq_price', 'label' => __('[Base] MOQ Price / Unit Price')],
-            ['value' => 'carton_qty', 'label' => __('[Base] Carton Qty')],
-            ['value' => 'carton_price', 'label' => __('[Base] Carton Price/PC')],
-            ['value' => 'min_qty', 'label' => __('[Base] Min Qty (MOQ)')],
-            ['value' => 'qty', 'label' => __('[Base] Qty Input')],
-            ['value' => 'subtotal', 'label' => __('[Base] Subtotal')],
-        ];
+        // Removed base columns so they cannot be selected from the dynamic columns list
+        $options = [];
 
         // Fetch catalog attributes
         $collection = $this->attributeCollectionFactory->create()
